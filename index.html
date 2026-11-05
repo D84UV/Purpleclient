@@ -24,45 +24,40 @@ Compile it yourself here: https://gitlab.com/lax1dude/eaglercraftx-1.8/
 
 
 
-<html>
+
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="description" content="EaglercraftX 1.8 Offline" />
-<meta name="keywords" content="eaglercraft, eaglercraftx, minecraft, 1.8, 1.8.8" />
-<title>Canvas</title>
-<meta property="og:locale" content="en-US" />
-<meta property="og:type" content="website" />
-<meta property="og:title" content="Canvas" />
-<meta property="og:description" content="this file is not a website, whoever uploaded it to this URL is a dumbass" />
-<script type="text/javascript">
-"use strict";
-<link rel="icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQuwd5eews6e2mrz7LEebtRDXM1PTKus1vGMbY-Cr31g&s=10" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="EaglercraftX 1.8 Offline" />
+    <meta name="keywords" content="eaglercraft, eaglercraftx, minecraft, 1.8, 1.8.8" />
+    <title>Canvas</title>
+    <meta property="og:locale" content="en-US" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Canvas" />
+    <meta property="og:description" content="EaglercraftX 1.8 Offline Web Client" />
+    <script type="text/javascript">
+        "use strict";
+        // %%%%%%%%% launch options %%%%%%%%%%%%
+        window.eaglercraftXOpts = { container: "game_frame" };
 
-
-// %%%%%%%%% launch options %%%%%%%%%%%%
-
-window.eaglercraftXOpts = { container: "game_frame" };
-
-// ---- Dragon X patch: FPS booster (applies before the game starts) ----
-(function(){
-  var K='dragonx-fps',mode='off';
-  try{mode=localStorage.getItem(K)||'off';}catch(e){}
-  var SCALE={off:1,balanced:0.75,max:0.5},s=SCALE[mode]||1;
-  window.__dragonxFps={mode:mode,set:function(m){try{localStorage.setItem(K,m);}catch(e){}}};
-  if(mode==='off')return;
-  var real=window.devicePixelRatio||1;
-  try{Object.defineProperty(window,'devicePixelRatio',{configurable:true,get:function(){return real*s;}});}catch(e){}
-  var gc=HTMLCanvasElement.prototype.getContext;
-  HTMLCanvasElement.prototype.getContext=function(t,o){
-    if(typeof t==='string'&&t.indexOf('webgl')===0){
-      o=Object.assign({},o||{},{antialias:false,powerPreference:'high-performance',desynchronized:true});
-    }
-    return gc.call(this,t,o);
-  };
-})();
-
-
+        // ---- Dragon X patch: FPS booster (applies before the game starts) ----
+        (function(){
+            var K='dragonx-fps',mode='off';
+            try{mode=localStorage.getItem(K)||'off';}catch(e){}
+            var SCALE={off:1,balanced:0.75,max:0.5},s=SCALE[mode]||1;
+            window.__dragonxFps={mode:mode,set:function(m){try{localStorage.setItem(K,m);}catch(e){}}};
+            if(mode==='off')return;
+            var real=window.devicePixelRatio||1;
+            try{Object.defineProperty(window,'devicePixelRatio',{configurable:true,get:function(){return real*s;}});}catch(e){}
+            var gc=HTMLCanvasElement.prototype.getContext;
+            HTMLCanvasElement.prototype.getContext=function(t,o){
+                if(typeof t==='string'&&t.indexOf('webgl')===0){
+                    o=Object.assign({},o||{},{antialias:false,powerPreference:'high-performance',desynchronized:true});
+                }
+                return gc.call(this,t,o);
+            };
+        })();
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
