@@ -43,6 +43,27 @@ Compile it yourself here: https://gitlab.com/lax1dude/eaglercraftx-1.8/
 
 window.eaglercraftXOpts = { container: "game_frame" };
 
+/* Dragon X: runs first, so any crash later in this script is shown on screen */
+(function(){
+	function banner(msg){
+		var b = document.getElementById("dx_err");
+		if(!b){
+			b = document.createElement("div"); b.id = "dx_err";
+			b.style.cssText = "position:fixed;left:8px;bottom:8px;right:8px;z-index:2147483647;padding:10px 14px;border-radius:8px;background:#5a0a1ae6;color:#fff;font:13px/1.4 system-ui,sans-serif;cursor:pointer;white-space:pre-wrap";
+			b.title = "Click to dismiss"; b.onclick = function(){ b.remove(); };
+			(document.body || document.documentElement).appendChild(b);
+		}
+		b.textContent = "Dragon X error: " + msg;
+	}
+	window.__dxBanner = banner;
+	window.addEventListener("error", function(e){ banner((e.message || "unknown error") + (e.lineno ? "  (line " + e.lineno + ", col " + e.colno + ")" : "")); });
+	window.addEventListener("unhandledrejection", function(e){ banner(String((e.reason && e.reason.message) || e.reason)); });
+	setTimeout(function(){
+		if(!window.__dxStarted && !document.getElementById("dx_err")) banner("the game script stopped before it finished loading, but the browser reported no error.");
+	}, 6000);
+})();
+
+
 // ---- Dragon X patch: FPS booster (applies before the game starts) ----
 (function(){
   var K='dragonx-fps',mode='off';
@@ -21262,19 +21283,29 @@ var PXCAT={killaura:'Combat',flight:'Movement',sprint:'Movement',autowalk:'Movem
 var PXDESC={killaura:'Attacks nearby players automatically',flight:'Fly like in creative mode',sprint:'Always sprint while moving',autowalk:'Walk forward automatically',freecam:'Detach the camera and fly around, body stays put',speed:'Move faster on the ground',glide:'Fall slowly like a feather',nofall:'Cancel fall damage',xray:'See ores, chests and lava through walls',brightness:'Fullbright - see in the dark',zoom:'Zoom in like a spyglass',fastplace:'Place blocks with no delay',automine:'Mine automatically'};
 PXCAT.esp='Render';PXCAT.tracers='Render';PXCAT.itemesp='Render';PXCAT.highjump='Movement';PXCAT.keystrokes='HUD';PXCAT.antiafk='World';
 PXDESC.esp='Purple boxes + distance around players, mobs and animals';PXDESC.tracers='Lines from the screen to players and hostile mobs';PXDESC.itemesp='Boxes around dropped items';PXDESC.highjump='Jump much higher';PXDESC.keystrokes='Shows WASD, Space and CPS on screen';PXDESC.antiafk='Wiggles the camera so you do not get kicked for idling';
+PXCAT.autoweapon='Combat';PXCAT.targetstrafe='Combat';PXCAT.longjump='Movement';
+PXDESC.autoweapon='Switches to your best sword or axe when you attack';PXDESC.targetstrafe='Orbits the nearest target while you hold W (A/D flip direction)';PXDESC.longjump='Boosts your horizontal speed when you jump';
+PXCAT.crosshair='Render';PXCAT.waypoint='Render';PXCAT.stats='Render';PXCAT.targetinfo='Render';PXCAT.spin='Movement';PXCAT.fastfall='Movement';
+PXDESC.crosshair='Custom crosshair with your own size, gap, thickness and colour';PXDESC.waypoint='Marks the spot where you turned it on, with distance on screen';PXDESC.stats='Shows speed, facing direction and session time';PXDESC.targetinfo='Shows what you are aiming at and how far away it is';PXDESC.spin='Spins your view around';PXDESC.fastfall='Falls faster while you are in the air';
 PXCAT.fov='Render';PXCAT.radar='Render';PXCAT.airjump='Movement';PXCAT.velocity='Combat';PXCAT.autoclicker='Combat';PXCAT.triggerbot='Combat';
 PXDESC.fov='Set your field of view to any value';PXDESC.radar='Mini radar showing players, mobs and animals around you';PXDESC.airjump='Jump again in mid-air each time you press Space';PXDESC.velocity='Reduces knockback when you are hit (best-effort detection)';PXDESC.autoclicker='Hold left click to attack or click at a steady speed';PXDESC.triggerbot='Attacks automatically when your crosshair is on a target';
 PXCAT.aimbot='Combat';PXCAT.autoeat='Combat';
 PXDESC.aimbot='Smoothly turns your aim toward the nearest target in range';PXDESC.autoeat='Eats the best food in your hotbar when hunger drops';
 var PXSET={
+ autoweapon:[{k:'reach',n:'Switch when target within (blocks)',min:3,max:6,step:0.5,d:4.5}],
+ targetstrafe:[{k:'radius',n:'Orbit distance (blocks)',min:1.5,max:6,step:0.5,d:3},{k:'speed',n:'Speed',min:0.15,max:0.6,step:0.01,d:0.28},{k:'range',n:'Find targets within (blocks)',min:3,max:12,step:1,d:8},{k:'mode',n:'Targets: 0 players, 1 mobs, 2 both',min:0,max:2,step:1,d:0}],
+ longjump:[{k:'boost',n:'Speed multiplier',min:1,max:3,step:0.1,d:1.6}],
+ crosshair:[{k:'size',n:'Arm length',min:2,max:30,step:1,d:8},{k:'gap',n:'Gap from centre',min:0,max:20,step:1,d:5},{k:'thick',n:'Thickness',min:1,max:6,step:1,d:2},{k:'hue',n:'Colour (0-360)',min:0,max:360,step:5,d:280},{k:'dot',n:'Centre dot: 0 off, 1 on',min:0,max:1,step:1,d:1}],
+ spin:[{k:'speed',n:'Degrees per tick',min:2,max:60,step:1,d:20}],
+ fastfall:[{k:'power',n:'Fall boost',min:0.02,max:0.5,step:0.02,d:0.1}],
  fov:[{k:'fov',n:'Field of view',min:30,max:110,step:1,d:90}],
  radar:[{k:'range',n:'Radar range (blocks)',min:16,max:100,step:2,d:40}],
  airjump:[{k:'power',n:'Jump power',min:0.2,max:0.9,step:0.02,d:0.42}],
- velocity:[{k:'taken',n:'Knockback taken (%)',min:0,max:100,step:5,d:20}],
+ velocity:[{k:'taken',n:'Horizontal knockback taken (%)',min:0,max:100,step:5,d:20},{k:'vert',n:'Vertical knockback taken (%)',min:0,max:100,step:5,d:100}],
  autoclicker:[{k:'cps',n:'Clicks per second',min:4,max:20,step:1,d:10}],
  triggerbot:[{k:'range',n:'Reach (blocks)',min:2,max:6,step:0.1,d:3},{k:'cps',n:'Max hits per second',min:2,max:16,step:1,d:8},{k:'mode',n:'Targets: 0 players, 1 mobs, 2 both',min:0,max:2,step:1,d:2}],
  killaura:[{k:'range',n:'Range (blocks)',min:2,max:6,step:0.1,d:4},{k:'delay',n:'Hit delay (ticks)',min:1,max:20,step:1,d:7}],
- aimbot:[{k:'range',n:'Range (blocks)',min:3,max:8,step:0.5,d:6},{k:'fov',n:'Field of view (degrees)',min:10,max:360,step:5,d:90},{k:'smooth',n:'Strength',min:0.05,max:1,step:0.05,d:0.3},{k:'mode',n:'Targets: 0 players, 1 mobs, 2 both',min:0,max:2,step:1,d:0}],
+ aimbot:[{k:'range',n:'Range (blocks)',min:3,max:8,step:0.5,d:6},{k:'fov',n:'Field of view (degrees)',min:10,max:360,step:5,d:90},{k:'smooth',n:'Strength',min:0.05,max:1,step:0.05,d:0.3},{k:'mode',n:'Targets: 0 players, 1 mobs, 2 both',min:0,max:2,step:1,d:0},{k:'part',n:'Aim height (0.9 head, 0.6 body, 0.2 feet)',min:0.2,max:0.95,step:0.05,d:0.85},{k:'prio',n:'Priority: 0 nearest, 1 closest to crosshair',min:0,max:1,step:1,d:0},{k:'hold',n:'Only while holding left click: 0 off, 1 on',min:0,max:1,step:1,d:0}],
  autoeat:[{k:'hunger',n:'Eat at food level',min:4,max:19,step:1,d:14}],
  speed:[{k:'speed',n:'Speed',min:0.15,max:0.8,step:0.01,d:0.33}],
  highjump:[{k:'power',n:'Jump power',min:0.5,max:1.6,step:0.05,d:0.85}],
@@ -21305,6 +21336,59 @@ function PXradar(){
   var x=rt/rng*R,y=-fw/rng*R,dd=Math.sqrt(x*x+y*y);if(dd>R-5){x*=(R-5)/dd;y*=(R-5)/dd;}
   ctx.fillStyle=PXCOL[k];ctx.beginPath();ctx.arc(R+x,R+y,3,0,6.2832);ctx.fill();}
  ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(R,R-6);ctx.lineTo(R-4,R+4);ctx.lineTo(R+4,R+4);ctx.fill();}
+function PXextra(){
+ var cv=PX.xcv;if(!cv)return;
+ var cr=PX.xh&&PX.xh.tm,wpOn=PX.xw&&PX.xw.tm&&PX.wp,st=PX.xs&&PX.xs.tm,ti=PX.xt&&PX.xt.tm;
+ var p=PXplayer(),w=A.Co3?A.Co3.E:null,gc=PXgame();
+ if(!(cr||wpOn||st||ti)||!p||!gc){cv.style.display='none';if(!st)PX.xl=null;return;}
+ cv.style.display='block';
+ var rc=gc.getBoundingClientRect(),dpr=window.devicePixelRatio||1,W=Math.max(1,Math.round(rc.width)),H=Math.max(1,Math.round(rc.height));
+ cv.style.left=rc.left+'px';cv.style.top=rc.top+'px';cv.style.width=W+'px';cv.style.height=H+'px';
+ if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);}
+ var ctx=PX.xcx;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+ var cx=W/2,cy=H/2;
+ function tag(txt,x,y){ctx.font='600 13px system-ui,sans-serif';ctx.textAlign='center';var tw=ctx.measureText(txt).width+14;ctx.fillStyle='rgba(20,10,40,.78)';ctx.fillRect(x-tw/2,y-12,tw,20);ctx.fillStyle='#efe6ff';ctx.fillText(txt,x,y+3);}
+ if(cr){
+  var s=PXn('crosshair','size'),g=PXn('crosshair','gap'),t=PXn('crosshair','thick'),col='hsl('+PXn('crosshair','hue')+',90%,65%)';
+  function ln(x1,y1,x2,y2){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+  for(var ps=0;ps<2;ps++){ctx.strokeStyle=ps?col:'rgba(0,0,0,.65)';ctx.lineWidth=ps?t:t+2;
+   ln(cx-g-s,cy,cx-g,cy);ln(cx+g,cy,cx+g+s,cy);ln(cx,cy-g-s,cx,cy-g);ln(cx,cy+g,cx,cy+g+s);}
+  if(PXn('crosshair','dot')>0){ctx.fillStyle=col;ctx.fillRect(cx-t/2,cy-t/2,t,t);}
+ }
+ if(wpOn){
+  var now=performance.now(),cam=PXinterp(p,now),ex=cam.x,ey=cam.y+1.62,ez=cam.z;
+  var yaw=p.s*Math.PI/180,pit=p.y*Math.PI/180,cp=Math.cos(pit),fx=-Math.sin(yaw)*cp,fy=-Math.sin(pit),fz=Math.cos(yaw)*cp;
+  var rx=-Math.cos(yaw),rz=-Math.sin(yaw),ux=-rz*fy,uy=rz*fx-rx*fz,uz=rx*fy;
+  var th=Math.tan(((A.Co3.b.WN||70)*Math.PI/180)/2),asp=W/H,q=PX.wp;
+  var dx=q.x-ex,dy=q.y-ey,dz=q.z-ez,dist=Math.sqrt(dx*dx+dy*dy+dz*dz),zc=dx*fx+dy*fy+dz*fz;
+  if(zc<0.1){tag('Waypoint is behind you ('+Math.round(dist)+' m)',cx,H-70);}
+  else{var sx=((dx*rx+dz*rz)/(zc*th*asp)*0.5+0.5)*W,sy=(0.5-(dx*ux+dy*uy+dz*uz)/(zc*th)*0.5)*H;
+   sx=Math.max(20,Math.min(W-20,sx));sy=Math.max(30,Math.min(H-30,sy));
+   ctx.fillStyle='#9d4dff';ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sx,sy-9);ctx.lineTo(sx+7,sy);ctx.lineTo(sx,sy+9);ctx.lineTo(sx-7,sy);ctx.closePath();ctx.fill();ctx.stroke();
+   tag('Waypoint  '+Math.round(dist)+' m',sx,sy-20);}
+ }
+ if(st){
+  var t2=performance.now(),L0=PX.xl;PX.t0=PX.t0||t2;
+  if(!L0)PX.xl={x:p.h,z:p.i,t:t2};
+  else if(t2-L0.t>=250){var sp=Math.sqrt((p.h-L0.x)*(p.h-L0.x)+(p.i-L0.z)*(p.i-L0.z))/((t2-L0.t)/1000);if(sp<40)PX.xsp=sp;PX.xl={x:p.h,z:p.i,t:t2};}
+  var yn=((p.s%360)+360)%360,dir=['S','SW','W','NW','N','NE','E','SE'][Math.round(yn/45)%8],sec=Math.floor((t2-PX.t0)/1000),mm=Math.floor(sec/60),ss=sec%60;
+  tag('Speed '+(PX.xsp||0).toFixed(1)+' b/s   Facing '+dir+'   Time '+mm+':'+(ss<10?'0':'')+ss,cx,22);
+ }
+ if(ti&&w&&w.fR&&w.fR.jN){
+  var bd=1e9,bk=null,ls=w.fR.jN.data,n=w.fR.n;
+  for(var i=0;i<n;i++){var e=ls[i];if(!e||e===p||typeof e.h!=='number')continue;var k=PXkind(e);if(!k||k==='i')continue;
+   if(PXrayHit(p,e,8)){var ax=e.h-p.h,ay=e.l-p.l,az=e.i-p.i,dd=Math.sqrt(ax*ax+ay*ay+az*az);if(dd<bd){bd=dd;bk=k;}}}
+  if(bk)tag(({p:'Player',h:'Hostile mob',a:'Animal'})[bk]+'   '+bd.toFixed(1)+' m',cx,cy+40);
+ }
+}
+function PXnear(p,w,rng,md){if(!w||!w.fR||!w.fR.jN)return null;var l=w.fR.jN.data,n=w.fR.n,b=null,bd=1e9;
+ for(var i=0;i<n;i++){var e=l[i];if(!e||e===p||typeof e.h!=='number')continue;var k=PXkind(e);if(!((k==='p'&&md!==1)||(k==='h'&&md!==0)))continue;
+  var dx=e.h-p.h,dy=e.l-p.l,dz=e.i-p.i,dd=Math.sqrt(dx*dx+dy*dy+dz*dz);if(dd<=rng&&dd<bd){bd=dd;b=e;}}
+ return b;}
+function PXaimed(p,w,reach){if(!w||!w.fR||!w.fR.jN)return false;var l=w.fR.jN.data,n=w.fR.n;
+ for(var i=0;i<n;i++){var e=l[i];if(!e||e===p||typeof e.h!=='number')continue;var k=PXkind(e);if(k!=='p'&&k!=='h'&&k!=='a')continue;if(PXrayHit(p,e,reach))return true;}
+ return false;}
+function PXdmg(it){var s=it&&it.u;if(!s)return 0;if(s instanceof IQ)return s.bV7||0;if(s instanceof Pu)return s.b$T||0;return 0;}
 function PXwrap(a){a%=360;if(a>180)a-=360;if(a<-180)a+=360;return a;}
 function PXplayer(){return A.Co3?A.Co3.k:null;}
 function PXinterp(e,now){
@@ -21405,13 +21489,14 @@ function PXinit(){
   if(!m.tm)return;var p=PXplayer(),w=A.Co3?A.Co3.E:null;
   if(!p||!w||!w.fR||!w.fR.jN||PX.open||!document.pointerLockElement)return;
   try{
+   if(PXn('aimbot','hold')>0&&!PX.mb[0])return;
    var rng=PXn('aimbot','range'),fov=PXn('aimbot','fov')/2,sm=PXn('aimbot','smooth'),md=PXn('aimbot','mode');
    var ex=p.h,ey=p.l+1.62,ez=p.i,best=null,bd=1e9,list=w.fR.jN.data,n=w.fR.n;
    for(var i=0;i<n;i++){var e=list[i];if(!e||e===p||typeof e.h!=='number')continue;
     var k=PXkind(e);if(!((k==='p'&&md!==1)||(k==='h'&&md!==0)))continue;
-    var dx=e.h-ex,dz=e.i-ez,dy=(e.l+(e.cs||1.8)*0.85)-ey,dist=Math.sqrt(dx*dx+dy*dy+dz*dz);if(dist>rng)continue;
+    var dx=e.h-ex,dz=e.i-ez,dy=(e.l+(e.cs||1.8)*PXn('aimbot','part'))-ey,dist=Math.sqrt(dx*dx+dy*dy+dz*dz);if(dist>rng)continue;
     var yw=Math.atan2(dz,dx)*180/Math.PI-90;if(Math.abs(PXwrap(yw-p.s))>fov)continue;
-    if(dist<bd){bd=dist;best={yw:yw,pt:-(Math.atan2(dy,Math.sqrt(dx*dx+dz*dz))*180/Math.PI)};}}
+    var sc=PXn('aimbot','prio')>0?Math.abs(PXwrap(yw-p.s)):dist;if(sc<bd){bd=sc;best={yw:yw,pt:-(Math.atan2(dy,Math.sqrt(dx*dx+dz*dz))*180/Math.PI)};}}
    if(!best)return;
    p.s+=PXwrap(best.yw-p.s)*sm;p.y=Math.max(-90,Math.min(90,p.y+(best.pt-p.y)*sm));
   }catch(e){}
@@ -21439,9 +21524,9 @@ function PXinit(){
  var aj=0;
  U(L,PXmk('AirJump',9999,null,null,function(m){if(!m.tm)return;var p=PXplayer();if(!p)return;if(PX.keys.Space){if(!aj){aj=1;p.c=PXn('airjump','power');}}else aj=0;}));
  /* Velocity (knockback reducer, detects a sudden push while you are not moving yourself) */
- var vsp=0;
+ var vsp=0,vpc=0;
  U(L,PXmk('Velocity',9999,null,null,function(m){var p=PXplayer();if(!p)return;var sp=Math.sqrt(p.e*p.e+p.f*p.f),K=PX.keys,mv=K.KeyW||K.KeyA||K.KeyS||K.KeyD;
-  if(m.tm&&!mv&&vsp<0.06&&sp>0.2){var k=PXn('velocity','taken')/100;p.e*=k;p.f*=k;sp*=k;}vsp=sp;}));
+  if(m.tm&&!mv&&vsp<0.06&&sp>0.2){var k=PXn('velocity','taken')/100;p.e*=k;p.f*=k;sp*=k;if(p.c>0.2&&vpc<0.1)p.c*=PXn('velocity','vert')/100;}vsp=sp;vpc=p.c;}));
  /* AutoClicker: hold left click, clicks at a steady speed */
  var ac=0;
  U(L,PXmk('AutoClicker',9999,null,null,function(m){if(!m.tm||PX.open||!document.pointerLockElement||!PX.mb[0])return;
@@ -21457,6 +21542,46 @@ function PXinit(){
     if(!((k==='p'&&md!==1)||(k==='h'&&md!==0)))continue;
     if(PXrayHit(p,e,rc)){PXclick(0,1);PXclick(0,0);tb=now;break;}}
   }catch(er){}}));
+ /* Crosshair / Waypoint / Stats / TargetInfo draw in PXextra() */
+ PX.xh=PXmk('Crosshair',9999,null,null,null);U(L,PX.xh);
+ PX.xw=PXmk('Waypoint',9999,function(m){var p=PXplayer();if(p)PX.wp={x:p.h,y:p.l+1,z:p.i};},function(m){PX.wp=null;},null);U(L,PX.xw);
+ PX.xs=PXmk('Stats',9999,null,null,null);U(L,PX.xs);
+ PX.xt=PXmk('TargetInfo',9999,null,null,null);U(L,PX.xt);
+ /* Spin */
+ U(L,PXmk('Spin',9999,null,null,function(m){if(!m.tm)return;var p=PXplayer();if(!p)return;p.s+=PXn('spin','speed');if(p.s>360)p.s-=360;}));
+ /* FastFall */
+ U(L,PXmk('FastFall',9999,null,null,function(m){if(!m.tm)return;var p=PXplayer();if(!p)return;if(p.c<-0.2&&!PX.keys.Space)p.c=Math.max(p.c-PXn('fastfall','power'),-3.0);}));
+ /* AutoWeapon: best sword or axe in the hotbar while you attack */
+ var aw={prev:-1,ka:null};
+ U(L,PXmk('AutoWeapon',9999,null,function(m){var p=PXplayer();if(p&&p.Q&&aw.prev>=0)p.Q.c9=aw.prev;aw.prev=-1;},function(m){
+  if(!m.tm)return;var p=PXplayer(),w=A.Co3?A.Co3.E:null;if(!p||!p.Q||!w||PX.open)return;var inv=p.Q;
+  try{
+   if(!aw.ka){var al=PXall();for(var i=0;i<al.length;i++)if(PXname(al[i])==='KillAura'){aw.ka=al[i];break;}}
+   var rc=PXn('autoweapon','reach');
+   var fight=(PX.mb[0]&&document.pointerLockElement&&PXaimed(p,w,rc))||(aw.ka&&aw.ka.tm&&PXnear(p,w,rc,2));
+   if(fight){var bs=-1,bv=0;for(var s=0;s<9;s++){var v=PXdmg(inv.bM.data[s]);if(v>bv){bv=v;bs=s;}}
+    if(bs>=0&&bs!==inv.c9){if(aw.prev<0)aw.prev=inv.c9;inv.c9=bs;}}
+   else if(aw.prev>=0&&!PX.mb[0]){inv.c9=aw.prev;aw.prev=-1;}
+  }catch(e){}
+ }));
+ /* TargetStrafe: hold W to orbit the nearest target, A/D flips direction */
+ var tsd=1;
+ U(L,PXmk('TargetStrafe',9999,null,null,function(m){
+  if(!m.tm)return;var p=PXplayer(),w=A.Co3?A.Co3.E:null,K=PX.keys;if(!p||!w||PX.open||!K.KeyW)return;
+  if(K.KeyA)tsd=1;if(K.KeyD)tsd=-1;
+  try{
+   var t=PXnear(p,w,PXn('targetstrafe','range'),PXn('targetstrafe','mode'));if(!t)return;
+   var dx=t.h-p.h,dz=t.i-p.i,dist=Math.sqrt(dx*dx+dz*dz)||0.001,R=PXn('targetstrafe','radius'),sp=PXn('targetstrafe','speed');
+   var ux=dx/dist,uz=dz/dist,rad=Math.max(-1,Math.min(1,(dist-R)/R*1.5));
+   var vx=-uz*tsd+ux*rad,vz=ux*tsd+uz*rad,vl=Math.sqrt(vx*vx+vz*vz)||1;
+   p.e=vx/vl*sp;p.f=vz/vl*sp;
+   p.s+=PXwrap(Math.atan2(dz,dx)*180/Math.PI-90-p.s)*0.5;
+  }catch(e){}
+ }));
+ /* LongJump */
+ var ljc=0;
+ U(L,PXmk('LongJump',9999,null,null,function(m){var p=PXplayer();if(!p)return;
+  if(m.tm&&ljc<=0.1&&p.c>0.3&&p.c<0.5&&PX.keys.Space){var b=PXn('longjump','boost');p.e*=b;p.f*=b;}ljc=p.c;}));
  /* Radar */
  PX.rd=PXmk('Radar',9999,null,null,null);U(L,PX.rd);
  /* Keystrokes HUD (on by default) */
@@ -21497,7 +21622,7 @@ function PXui(){
  var st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
  var hud=document.createElement('div');hud.id='pxhud';hud.innerHTML='<div class="wm">\u25C6 DRAGON X \u00B7 PURPLE</div><div class="info"></div><div class="list"></div>';document.body.appendChild(hud);
  var menu=document.createElement('div');menu.id='pxmenu';
- menu.innerHTML='<div class="win"><div class="head"><span class="logo">\u25C6 DRAGON X</span><span class="sub">purple edition \u00B7 click a module to toggle \u00B7 click a key box to rebind</span><button class="x">\u2715</button></div><div class="body"><div class="tabs"></div><div class="list"></div></div><div class="foot"><span>Right Shift: open / close \u00B7 right-click a module for settings</span><span class="offall" style="cursor:pointer">Disable all</span><span class="hudsw" style="cursor:pointer"></span></div></div>';
+ menu.innerHTML='<div class="win"><div class="head"><span class="logo">\u25C6 DRAGON X</span><span class="sub">purple edition \u00B7 click a module to toggle \u00B7 click a key box to rebind</span><button class="x">\u2715</button></div><div class="body"><div class="tabs"></div><div class="list"></div></div><div class="foot"><span>Right Shift: open / close \u00B7 right-click a module for settings</span><span class="cfgb" style="cursor:pointer">Settings backup</span><span class="offall" style="cursor:pointer">Disable all</span><span class="hudsw" style="cursor:pointer"></span></div></div>';
  document.body.appendChild(menu);
  var setBox=document.createElement('div');setBox.id='pxset';menu.querySelector('.win').style.position='relative';menu.querySelector('.win').appendChild(setBox);
  menu.addEventListener('contextmenu',function(e){e.preventDefault();});
@@ -21515,6 +21640,7 @@ function PXui(){
  setTimeout(function(){toast.style.opacity=0;},6000);setTimeout(function(){toast.remove();},7000);
  var cv=document.createElement('canvas');cv.id='pxesp';cv.style.cssText='position:fixed;left:0;top:0;pointer-events:none;z-index:99996';document.body.appendChild(cv);PX.cv=cv;PX.cx=cv.getContext('2d');
  var rc=document.createElement('canvas');rc.id='pxradar';rc.width=150;rc.height=150;rc.style.cssText='position:fixed;left:12px;bottom:12px;width:150px;height:150px;pointer-events:none;z-index:99996;display:none';document.body.appendChild(rc);PX.rcv=rc;PX.rcx=rc.getContext('2d');
+ var xc=document.createElement('canvas');xc.id='pxextra';xc.style.cssText='position:fixed;pointer-events:none;z-index:99995;display:none';document.body.appendChild(xc);PX.xcv=xc;PX.xcx=xc.getContext('2d');
  var ks=document.createElement('div');ks.id='pxks';
  ks.innerHTML='<div class="k" style="grid-column:2" data-k="KeyW">W</div><div class="k" style="grid-column:1;grid-row:2" data-k="KeyA">A</div><div class="k" style="grid-row:2" data-k="KeyS">S</div><div class="k" style="grid-row:2" data-k="KeyD">D</div><div class="k" style="grid-column:1/4" data-k="Space">SPACE</div><div class="k" style="grid-column:1/3" data-m="0">LMB</div><div class="k" data-m="2">RMB</div>';
  document.body.appendChild(ks);
@@ -21550,6 +21676,7 @@ function PXui(){
    list.appendChild(r);});
   hudsw.textContent='HUD: '+(PX.hud?'ON':'OFF')+' (click)';
  }
+ menu.querySelector('.cfgb').onclick=function(){var cur=JSON.stringify(PXCFG),s=prompt('Your settings are below - copy them to back up. To restore, paste saved settings here and press OK:',cur);if(s&&s!==cur){try{var o=JSON.parse(s);if(o&&typeof o==='object'){PXCFG=o;PXsave();}}catch(e){alert('That did not look like saved settings.');}}};
  menu.querySelector('.offall').onclick=function(){PXall().forEach(function(m){if(m.tm&&m!==PX.ks)PX.queue.push(m);});setTimeout(render,250);};
  hudsw.onclick=function(){PX.hud=PX.hud?0:1;hud.style.display=PX.hud?'block':'none';render();};
  function setOpen(o){PX.open=o;PX.bind=null;PX.keys={};menu.style.display=o?'flex':'none';if(!o)setBox.style.display='none';if(o){try{document.exitPointerLock&&document.exitPointerLock();}catch(e){}render();}}
@@ -21563,7 +21690,7 @@ function PXui(){
  window.addEventListener('keyup',function(e){if(PX.open){e.stopImmediatePropagation();return;}PX.keys[e.code]=0;},true);
  window.addEventListener('blur',function(){PX.keys={};});
  var info=hud.querySelector('.info'),al=hud.querySelector('.list');
- (function raf(){PX.frames++;try{PXdraw();ksUpdate();PXradar();}catch(e){if(!PX.derr){PX.derr=1;console.error('PX draw',e);}}requestAnimationFrame(raf);})();
+ (function raf(){PX.frames++;try{PXdraw();ksUpdate();PXradar();try{PXextra();}catch(e){}}catch(e){if(!PX.derr){PX.derr=1;console.error('PX draw',e);}}requestAnimationFrame(raf);})();
  setInterval(function(){PX.fps=PX.frames*4;PX.frames=0;},250);
  setInterval(function(){
   if(PX.open){var rows=list.querySelectorAll('.row'),mods=PXall(),i=0;mods.forEach(function(m){var n=PXname(m),c=PXCAT[PXnorm(n)]||'Misc';if(PX.cat!=='All'&&PX.cat!==c)return;if(rows[i])rows[i].className='row'+(m.tm?' on':'');i++;});}
@@ -32106,7 +32233,7 @@ function launchTick() {
 	function go(){
 		if(started) return;
 		if(typeof main !== "function"){ setTimeout(go, 400); return; }
-		started = true;
+		started = true; window.__dxStarted = true;
 		var s = document.getElementById("launch_countdown_screen");
 		if(s) s.remove();
 		try{ main(); }catch(err){ banner(String(err && err.stack || err)); }
